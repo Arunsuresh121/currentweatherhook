@@ -5,12 +5,8 @@ import {API_KEY} from './weatherdata/WeatherApiKey';
 import Weather from './components/Weather';
 
 function App() {
-  const [position, setPosition] = useState({
-    latitude: null,
-    longitude: null,
-  });
-
   const [initialState, setInitial] = useState({
+    location: 'No location',
     isLoading: false,
     temperature: 0,
     pressure: 0,
@@ -18,27 +14,25 @@ function App() {
     weatherCondition: 'Default',
     error: null,
   });
-
+  
   useEffect(() => {
-    getPosition();
-    console.log(position.latitude);
-    console.log(position.longitude);
     fetchWeather();
-  }, [position.latitude, position.longitude]);
-
-  const getPosition = () => {
-    Geolocation.getCurrentPosition(pos => {
-      setPosition({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      });
+    Geolocation.getCurrentPosition(locationUpdated, console.log, {
+      maximumAge: 10000,
+      enableHighAccuracy: false,
     });
-  };
+  }, []);
 
-  function fetchWeather(lat = position.latitude, lon = position.longitude) {
+   locationUpdated = (location) => {
+    console.log('ggg');
+    console.log(location);
+    setInitial({
+      location: `Longitude: ${location.coords.longitude}, Latitude: ${location.coords.latitude}`,
+    });
+  }
+
+  function fetchWeather(lat = 10.01516, lon = 76.347315) {
     console.log('a');
-    console.log(position.latitude);
-    console.log(position.longitude);
     fetch(
       `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=metric`,
     )
@@ -56,9 +50,8 @@ function App() {
   }
   return (
     <View style={styles.container}>
-      <Text>Latitude: {position.latitude}</Text>
-      <Text>Longitude: {position.longitude}</Text>
-
+      <Text>{initialState.location}</Text>
+      <Text>arun</Text>
       {initialState.isLoading ? (
         <Text>Fetching Weather Data</Text>
       ) : (

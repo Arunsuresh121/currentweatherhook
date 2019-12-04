@@ -8,6 +8,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       location: 'No location',
+      Longitude:0,
+      Latitude:0,
       isLoading: false,
       temperature: 0,
       pressure:0,
@@ -20,7 +22,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchWeather();
+    // this.fetchWeather();
     Geolocation.getCurrentPosition(this.locationUpdated, console.log, {
       maximumAge: 10000,
       enableHighAccuracy: false,
@@ -31,11 +33,15 @@ class App extends React.Component {
     console.log(location);
     this.setState({
       location: `Longitude: ${location.coords.longitude}, Latitude: ${location.coords.latitude}`,
+      Longitude: location.coords.longitude,
+      Latitude: location.coords.latitude
     });
+    this.fetchWeather()
   }
 
-  fetchWeather(lat = 10.01516, lon = 76.347315) {
-    console.log('a')
+  fetchWeather(lat = this.state.Latitude, lon = this.state.Longitude) {
+    console.log("longitude",this.state.Longitude)
+    console.log('latitude',this.state.Latitude)
     fetch(
         `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&APPID=${API_KEY}&units=metric`
     )
@@ -55,10 +61,13 @@ class App extends React.Component {
 
   render() {
     const { location ,temperature ,pressure ,humidity ,weatherCondition ,isLoading } = this.state;
+    console.log(this.state.Longitude)
+    console.log(this.state.Latitude)
     return (
 
             <View style={styles.container}>
                   <Text>{location}</Text>
+                  
                   { isLoading ? <Text>Fetching Weather Data</Text> : 
                       <Weather weather={ weatherCondition } 
                                temperature={ temperature }  
