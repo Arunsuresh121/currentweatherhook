@@ -8,13 +8,13 @@ function App() {
   const [position, setPosition] = useState({
     latitude: null,
     longitude: null,
+    location: 'no location',
   });
-
+  const [temperature, setTemperature] = useState(0);
+  const [pressure, setPressure] = useState(0);
+  const [humidity, setHumidity] = useState(0);
   const [initialState, setInitial] = useState({
     isLoading: false,
-    temperature: 0,
-    pressure: 0,
-    humidity: 0,
     weatherCondition: 'Default',
     error: null,
   });
@@ -23,16 +23,23 @@ function App() {
     getPosition();
     console.log(position.latitude);
     console.log(position.longitude);
-    fetchWeather();
   }, [position.latitude, position.longitude]);
 
   const getPosition = () => {
-    Geolocation.getCurrentPosition(pos => {
-      setPosition({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      });
+    Geolocation.getCurrentPosition(locationUpdated, console.log, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 10000,
     });
+  };
+
+  const locationUpdated = location => {
+    console.log(location);
+    setPosition({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
+    fetchWeather();
   };
 
   function fetchWeather(lat = position.latitude, lon = position.longitude) {
@@ -46,12 +53,12 @@ function App() {
       .then(json => {
         console.log(json);
         setInitial({
-          temperature: json.main.temp,
-          pressure: json.main.pressure,
-          humidity: json.main.humidity,
           weatherCondition: json.weather[0].main,
           isLoading: false,
         });
+        setTemperature(json.main.temp);
+        setPressure(json.main.pressure);
+        setHumidity(json.main.humidity);
       });
   }
   return (
@@ -64,9 +71,9 @@ function App() {
       ) : (
         <Weather
           weather={initialState.weatherCondition}
-          temperature={initialState.temperature}
-          pressure={initialState.pressure}
-          humidity={initialState.humidity}
+          temperature={temperature}
+          pressure={pressure}
+          humidity={humidity}
         />
       )}
     </View>
