@@ -16,30 +16,33 @@ function App() {
   const [initialState, setInitial] = useState({
     isLoading: false,
     weatherCondition: 'Default',
-    error: null,
   });
 
   useEffect(() => {
     getPosition();
+    console.log('bbb');
     console.log(position.latitude);
     console.log(position.longitude);
   }, [position.latitude, position.longitude]);
 
   const getPosition = () => {
-    Geolocation.getCurrentPosition(locationUpdated, console.log, {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 10000,
-    });
+    setInterval(() => {
+      Geolocation.getCurrentPosition(locationUpdated, console.log, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 10000,
+      });
+    }, 1000);
+  fetchWeather();
   };
 
-  const locationUpdated = location => {
+  const locationUpdated = (location) => {
     console.log(location);
     setPosition({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     });
-    fetchWeather();
+   
   };
 
   function fetchWeather(lat = position.latitude, lon = position.longitude) {
@@ -56,7 +59,7 @@ function App() {
           weatherCondition: json.weather[0].main,
           isLoading: false,
         });
-        setTemperature(json.main.temp);
+        setTemperature(json.main.temp.toFixed(1));
         setPressure(json.main.pressure);
         setHumidity(json.main.humidity);
       });
